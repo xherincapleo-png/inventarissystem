@@ -13,11 +13,6 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     datasourceUrl: DEFAULT_DB_URL,
-    datasources: {
-      db: {
-        url: DEFAULT_DB_URL,
-      },
-    },
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 
