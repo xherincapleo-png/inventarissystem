@@ -8,14 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Modal } from "@/components/ui/modal";
 
 const DEMO_ACCOUNTS = [
   {
@@ -250,73 +243,67 @@ function LoginForm() {
       </div>
 
       {/* Modal Dialog Reset Password */}
-      <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 mb-2">
-              <KeyRound className="h-5 w-5" />
-            </div>
-            <DialogTitle>Reset Password Akun</DialogTitle>
-            <DialogDescription>
-              Masukkan email akun Anda dan ketikkan password baru yang diinginkan.
-            </DialogDescription>
-          </DialogHeader>
+      <Modal
+        open={isResetOpen}
+        onClose={() => setIsResetOpen(false)}
+        title="Reset Password Akun"
+        description="Masukkan email akun Anda dan ketikkan password baru yang diinginkan."
+        maxWidth="md"
+      >
+        <form onSubmit={handleResetPassword} className="space-y-4 pt-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="reset-email">Email Terdaftar</Label>
+            <Input
+              id="reset-email"
+              type="email"
+              required
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              placeholder="admin@admin.com"
+            />
+          </div>
 
-          <form onSubmit={handleResetPassword} className="space-y-3.5 py-2">
-            <div className="space-y-1">
-              <Label htmlFor="reset-email">Email Terdaftar</Label>
-              <Input
-                id="reset-email"
-                type="email"
-                required
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                placeholder="admin@admin.com"
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="new-password">Password Baru</Label>
+            <Input
+              id="new-password"
+              type="password"
+              required
+              minLength={6}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Minimal 6 karakter"
+            />
+          </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="new-password">Password Baru</Label>
-              <Input
-                id="new-password"
-                type="password"
-                required
-                minLength={6}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Minimal 6 karakter"
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="confirm-password">Konfirmasi Password Baru</Label>
+            <Input
+              id="confirm-password"
+              type="password"
+              required
+              minLength={6}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Ulangi password baru"
+            />
+          </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="confirm-password">Konfirmasi Password Baru</Label>
-              <Input
-                id="confirm-password"
-                type="password"
-                required
-                minLength={6}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Ulangi password baru"
-              />
-            </div>
-
-            <DialogFooter className="pt-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsResetOpen(false)}
-                disabled={isResetting}
-              >
-                Batal
-              </Button>
-              <Button type="submit" disabled={isResetting}>
-                {isResetting ? "Menyimpan..." : "Simpan Password Baru"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+          <div className="flex justify-end gap-2.5 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsResetOpen(false)}
+              disabled={isResetting}
+            >
+              Batal
+            </Button>
+            <Button type="submit" disabled={isResetting}>
+              {isResetting ? "Menyimpan..." : "Simpan Password Baru"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
