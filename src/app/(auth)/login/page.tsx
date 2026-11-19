@@ -3,11 +3,19 @@
 import React, { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Boxes, Lock, Mail, ArrowRight, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { Boxes, Lock, Mail, ArrowRight, ShieldAlert, CheckCircle2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const DEMO_ACCOUNTS = [
   {
@@ -51,6 +59,56 @@ function LoginForm() {
   const [password, setPassword] = useState("admin123");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // State untuk Reset Password Modal
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail || !newPassword) {
+      toast.error("Harap isi email dan password baru.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Konfirmasi password tidak cocok.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("Password minimal 6 karakter.");
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail, newPassword }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || "Gagal mereset password.");
+        setIsResetting(false);
+        return;
+      }
+
+      toast.success(data.message || "Password berhasil diubah!");
+      setEmail(resetEmail);
+      setPassword(newPassword);
+      setIsResetOpen(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch {
+      toast.error("Terjadi kesalahan jaringan.");
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +171,19 @@ function LoginForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Password</Label>
+            <button
+              type="button"
+              onClick={() => {
+                setResetEmail(email);
+                setIsResetOpen(true);
+              }}
+              className="text-xs font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+            >
+              Lupa / Reset Password?
+            </button>
+          </div>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input
@@ -178,6 +248,75 @@ function LoginForm() {
           })}
         </div>
       </div>
+
+      {/* Modal Dialog Reset Password */}
+      <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 mb-2">
+              <KeyRound className="h-5 w-5" />
+            </div>
+            <DialogTitle>Reset Password Akun</DialogTitle>
+            <DialogDescription>
+              Masukkan email akun Anda dan ketikkan password baru yang diinginkan.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleResetPassword} className="space-y-3.5 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="reset-email">Email Terdaftar</Label>
+              <Input
+                id="reset-email"
+                type="email"
+                required
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="admin@admin.com"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="new-password">Password Baru</Label>
+              <Input
+                id="new-password"
+                type="password"
+                required
+                minLength={6}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Minimal 6 karakter"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="confirm-password">Konfirmasi Password Baru</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                required
+                minLength={6}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Ulangi password baru"
+              />
+            </div>
+
+            <DialogFooter className="pt-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsResetOpen(false)}
+                disabled={isResetting}
+              >
+                Batal
+              </Button>
+              <Button type="submit" disabled={isResetting}>
+                {isResetting ? "Menyimpan..." : "Simpan Password Baru"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
