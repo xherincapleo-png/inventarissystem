@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { RoleType } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || "nexus-ims-super-secret-enterprise-key-2026-9988776655",
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours
