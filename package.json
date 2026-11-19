@@ -5,7 +5,7 @@
   "description": "Enterprise Inventory Management System built with Next.js App Router, TypeScript, Tailwind CSS, Prisma, PostgreSQL, and Auth.js",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma db push --accept-data-loss && prisma db seed && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
