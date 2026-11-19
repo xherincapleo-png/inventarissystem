@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Boxes, Lock, Mail, ArrowRight, ShieldAlert, CheckCircle2 } from "lucide-react";
@@ -42,7 +42,7 @@ const DEMO_ACCOUNTS = [
   },
 ];
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
@@ -87,6 +87,103 @@ export default function LoginPage() {
   };
 
   return (
+    <div className="rounded-xl border border-slate-200/90 bg-white px-6 py-8 shadow-sm sm:px-8">
+      {error && (
+        <div className="mb-5 flex items-center gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+          <ShieldAlert className="h-4 w-4 shrink-0 text-red-600" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="email">Work Email</Label>
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@company.com"
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="password">Password</Label>
+          <div className="relative">
+            <Lock className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full gap-2"
+          disabled={isLoading}
+        >
+          {isLoading ? "Authenticating..." : "Sign in to Workspace"}
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      </form>
+
+      {/* Role Quick-Fill Selector for Testing RBAC */}
+      <div className="mt-6 border-t border-slate-100 pt-5">
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          Seeded RBAC Accounts (Click to autofill)
+        </p>
+        <div className="grid grid-cols-1 gap-2">
+          {DEMO_ACCOUNTS.map((acc) => {
+            const isSelected = email === acc.email;
+            return (
+              <button
+                key={acc.role}
+                type="button"
+                onClick={() => selectDemoRole(acc.email, acc.password)}
+                className={`flex items-center justify-between rounded-lg border p-2.5 text-left transition-colors ${
+                  isSelected
+                    ? "border-indigo-600 bg-indigo-50/50"
+                    : "border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-slate-900">
+                      {acc.role}
+                    </span>
+                    <span className="font-mono text-[11px] text-slate-500">
+                      {acc.email}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[11px] text-slate-500">
+                    {acc.desc}
+                  </p>
+                </div>
+                {isSelected && (
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-indigo-600" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="flex min-h-screen flex-col justify-center bg-slate-50 py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
@@ -103,98 +200,9 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="rounded-xl border border-slate-200/90 bg-white px-6 py-8 shadow-sm sm:px-8">
-          {error && (
-            <div className="mb-5 flex items-center gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-              <ShieldAlert className="h-4 w-4 shrink-0 text-red-600" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Work Email</Label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  className="pl-9"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-9"
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full gap-2"
-              disabled={isLoading}
-            >
-              {isLoading ? "Authenticating..." : "Sign in to Workspace"}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </form>
-
-          {/* Role Quick-Fill Selector for Testing RBAC */}
-          <div className="mt-6 border-t border-slate-100 pt-5">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-              Seeded RBAC Accounts (Click to autofill)
-            </p>
-            <div className="grid grid-cols-1 gap-2">
-              {DEMO_ACCOUNTS.map((acc) => {
-                const isSelected = email === acc.email;
-                return (
-                  <button
-                    key={acc.role}
-                    type="button"
-                    onClick={() => selectDemoRole(acc.email, acc.password)}
-                    className={`flex items-center justify-between rounded-lg border p-2.5 text-left transition-colors ${
-                      isSelected
-                        ? "border-indigo-600 bg-indigo-50/50"
-                        : "border-slate-200 hover:bg-slate-50"
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-slate-900">
-                          {acc.role}
-                        </span>
-                        <span className="font-mono text-[11px] text-slate-500">
-                          {acc.email}
-                        </span>
-                      </div>
-                      <p className="mt-0.5 text-[11px] text-slate-500">
-                        {acc.desc}
-                      </p>
-                    </div>
-                    {isSelected && (
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-indigo-600" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <Suspense fallback={<div className="h-96 rounded-xl border border-slate-200/90 bg-white shadow-sm animate-pulse" />}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   );
