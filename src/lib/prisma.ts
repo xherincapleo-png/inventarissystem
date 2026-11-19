@@ -6,14 +6,16 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const DEFAULT_DB_URL =
+  process.env.DATABASE_URL ||
   "postgresql://postgres.fbpkvvhcegecfzdrwsvj:AdminNexus2026!@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true";
 
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
+    datasourceUrl: DEFAULT_DB_URL,
     datasources: {
       db: {
-        url: process.env.DATABASE_URL || DEFAULT_DB_URL,
+        url: DEFAULT_DB_URL,
       },
     },
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
