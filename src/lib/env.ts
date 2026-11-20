@@ -1,8 +1,15 @@
 const FALLBACK_DB =
-  "postgresql://postgres.fbpkvvhcegecfzdrwsvj:AdminNexus2026!@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true";
+  "postgresql://postgres.fbpkvvhcegecfzdrwsvj:AdminNexus2026!@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true";
+
+const FALLBACK_DIRECT =
+  "postgresql://postgres.fbpkvvhcegecfzdrwsvj:AdminNexus2026!@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres";
 
 if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = FALLBACK_DB;
+}
+
+if (!process.env.DIRECT_URL) {
+  process.env.DIRECT_URL = FALLBACK_DIRECT;
 }
 
 if (!process.env.NEXTAUTH_SECRET) {
@@ -14,3 +21,4 @@ if (!process.env.NEXTAUTH_URL) {
 }
 
 export const DATABASE_URL = process.env.DATABASE_URL || FALLBACK_DB;
+export const DIRECT_URL = process.env.DIRECT_URL || FALLBACK_DIRECT;

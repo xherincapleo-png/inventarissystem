@@ -5,7 +5,7 @@
   "description": "Enterprise Inventory Management System built with Next.js App Router, TypeScript, Tailwind CSS, Prisma, PostgreSQL, and Auth.js",
   "scripts": {
     "dev": "next dev",
-    "build": "DATABASE_URL=\"postgresql://postgres.fbpkvvhcegecfzdrwsvj:AdminNexus2026!@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true\" prisma generate && DATABASE_URL=\"postgresql://postgres.fbpkvvhcegecfzdrwsvj:AdminNexus2026!@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true\" prisma db push --accept-data-loss && DATABASE_URL=\"postgresql://postgres.fbpkvvhcegecfzdrwsvj:AdminNexus2026!@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true\" prisma db seed && next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
